@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectCodeStyleSettingsManager">
+    <option name="PER_PROJECT_SETTINGS">
+      <value>
+        <option name="JD_ADD_BLANK_AFTER_RETURN" value="true" />
+        <JavaCodeStyleSettings>
+          <option name="CLASS_NAMES_IN_JAVADOC" value="3" />
+        </JavaCodeStyleSettings>
+        <codeStyleSettings language="JAVA">
+          <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+          <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
+          <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
+          <option name="SPACE_AROUND_LAMBDA_ARROW" value="false" />
+          <option name="SPACE_BEFORE_SYNCHRONIZED_PARENTHESES" value="false" />
+          <option name="SPACE_BEFORE_ANOTATION_PARAMETER_LIST" value="true" />
+        </codeStyleSettings>
+      </value>
+    </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+  </component>
+</project>

@@ -1,6 +1,7 @@
 plugins {
     id "com.github.hierynomus.license" version "0.14.0"
     id 'org.spongepowered.plugin' version '0.8.1'
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
 import java.nio.channels.Channels
@@ -42,16 +43,16 @@ repositories {
 }
 
 configurations {
-    releaseJar
+    compile.extendsFrom shadow
 }
 
 dependencies {
     compile 'org.spongepowered:spongeapi:7.0.0'
-    compile group: 'net.cpas', name: 'CpasLibrary', version: '1.0.2'
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+    compile 'net.cpas:CpasLibrary:1.0.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 
-    releaseJar group: 'net.cpas', name: 'CpasLibrary', version: '1.0.2'
-    //releaseJar 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+    shadow 'net.cpas:CpasLibrary:1.0.0'
+    shadow 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 }
 
 license {
@@ -62,10 +63,25 @@ license {
     }
 }
 
-jar {
+/*jar {
     baseName = project.ext.baseName
     version =  version
     from configurations.releaseJar.collect { it.isDirectory() ? it : zipTree(it) }
+
+    manifest {
+        attributes(
+                "Class-Path": configurations.releaseJar.collect { it.getName() }.join(' '))
+    }
+}*/
+
+shadowJar {
+    baseName = project.ext.baseName
+    classifier = null
+    version = version
+
+    configurations = [project.configurations.shadow]
+    //relocate 'net.cpas', 'net.cpas.mc.cpas'
+    relocate 'com.fasterxml.jackson', 'net.cpas.mc.fasterxml'
 }
 
 task serverSetup(type: StartSetupTask)
@@ -79,6 +95,7 @@ task startServer (type: JavaExec) {
     args = ["spongevanilla.jar"]
 }
 
+build.dependsOn.add("shadowJar")
 serverSetup.dependsOn build
 startServer.dependsOn serverSetup
 startServer.logging.captureStandardOutput LogLevel.QUIET

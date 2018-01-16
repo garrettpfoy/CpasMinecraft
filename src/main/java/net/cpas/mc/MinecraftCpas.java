@@ -29,7 +29,6 @@
  */
 package net.cpas.mc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.cpas.Cpas;
 import net.cpas.mc.commands.CommandRegistrar;
 import net.cpas.mc.events.EventRegistrar;

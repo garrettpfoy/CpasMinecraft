@@ -1,5 +1,6 @@
 plugins {
     id "com.github.hierynomus.license" version "0.14.0"
+    id 'org.spongepowered.plugin' version '0.8.1'
 }
 
 import java.nio.channels.Channels
@@ -7,20 +8,29 @@ import java.nio.channels.FileChannel
 import java.nio.channels.ReadableByteChannel
 
 apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
 sourceCompatibility = 1.8
 
 group 'net.cpas'
 project.ext.baseName = 'cpas'
 version '1.2.0'
 description = 'Minecraft Cpas'
-project.ext.spongeServer = "1.10.2-5.2.0-BETA-385"
+project.ext.spongeServer = "1.12.2-7.1.0-BETA-10"
+
+sponge {
+    plugin {
+        id = 'cpas'
+        meta {
+            name = 'Minecraft Cpas'
+            version = project.version
+            description = 'The Minecraft cpas server endpoint.'
+        }
+    }
+}
 
 repositories {
     mavenCentral()
-    maven {
-        name = 'sponge'
-        url = 'https://repo.spongepowered.org/maven'
-    }
     maven {
         name = 'reallifegames'
         url = 'https://reallifegames.net/artifactory/gradle-release'
@@ -37,9 +47,11 @@ configurations {
 
 dependencies {
     compile 'org.spongepowered:spongeapi:7.0.0'
-    compile group: 'net.cpas', name: 'CpasLibrary', version: '1.0.1'
+    compile group: 'net.cpas', name: 'CpasLibrary', version: '1.0.2'
+    //compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 
-    releaseJar group: 'net.cpas', name: 'CpasLibrary', version: '1.0.1'
+    releaseJar group: 'net.cpas', name: 'CpasLibrary', version: '1.0.2'
+    //releaseJar 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 }
 
 license {
@@ -51,9 +63,9 @@ license {
 }
 
 jar {
-    from configurations.releaseJar.collect { it.isDirectory() ? it : zipTree(it) }
     baseName = project.ext.baseName
     version =  version
+    from configurations.releaseJar.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 task serverSetup(type: StartSetupTask)

@@ -29,6 +29,7 @@
  */
 package net.cpas.mc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.cpas.Cpas;
 import net.cpas.mc.commands.CommandRegistrar;
 import net.cpas.mc.events.EventRegistrar;
@@ -65,7 +66,7 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://docs.spongepowered.org/stable/en/plugin/injection.html#injection-examples">
  * Dependency Injection</a>
  */
-@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.0", description = "The Minecraft cpas server endpoint.")
+@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.2.0", description = "The Minecraft cpas server endpoint.")
 public class MinecraftCpas {
 
     /**

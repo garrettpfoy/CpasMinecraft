@@ -41,6 +41,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Text;
@@ -140,7 +141,15 @@ public class LoginListener extends BaseEvent {
             // TODO: check for object id change i.e. rule #73
             final PermissionService permissionService = Sponge.getGame().getServiceManager().provideUnchecked(PermissionService.class);
             final SubjectCollection groups = permissionService.getGroupSubjects();
-            final SubjectData playerData = permissionService.getUserSubjects().get(playerUUID.toString()).getSubjectData();
+            final Optional<Subject> optionalSubject = permissionService.getUserSubjects().getSubject(playerUUID.toString());
+            // When SubjectCollections are queried for a Subject they will automatically be created, if they do not
+            // already exist. However they might not necessarily show up in getAllSubjects() unless none-default values
+            // are set. If for some odd reason A user is not present log ad return;
+            if(!optionalSubject.isPresent()) {
+                pluginInstance.getLogger().warn("Subject data not created, please contact plugin maintainer.");
+                return;
+            }
+            final SubjectData playerData = optionalSubject.get().getSubjectData();
             final String groupsText = pluginInstance.getConfig().getGroupsPrefix();
 
             // Remove any other primary groups and add primary group just in case

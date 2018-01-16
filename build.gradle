@@ -11,7 +11,7 @@ sourceCompatibility = 1.8
 
 group 'net.cpas'
 project.ext.baseName = 'cpas'
-version '1.0.0'
+version '1.2.0'
 description = 'Minecraft Cpas'
 project.ext.spongeServer = "1.10.2-5.2.0-BETA-385"
 
@@ -36,10 +36,10 @@ configurations {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:5.1.0'
-    compile group: 'net.cpas', name: 'CpasLibrary', version: '1.0.0'
+    compile 'org.spongepowered:spongeapi:7.0.0'
+    compile group: 'net.cpas', name: 'CpasLibrary', version: '1.0.1'
 
-    releaseJar group: 'net.cpas', name: 'CpasLibrary', version: '1.0.0'
+    releaseJar group: 'net.cpas', name: 'CpasLibrary', version: '1.0.1'
 }
 
 license {

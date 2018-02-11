@@ -50,6 +50,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
 
 import javax.inject.Inject;
@@ -57,6 +58,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Main plugin class that sponge will load. Sponge will also use Guice to inject dependency
@@ -252,11 +254,11 @@ public class MinecraftCpas {
                     // Push ban to cpas
                     Cpas.getInstance().banUser(
                             profile.getUniqueId().toString(),
-                            profile.getName().get(),
+                            profile.getName().orElse("INTERNAL ERROR"),
                             bannerId,
                             new String[]{""},
                             (int) duration * 60,
-                            ban.getReason().get().toPlain(),
+                            ban.getReason().orElse(Text.of("INTERNAL ERROR")).toPlain(),
                             new ProcessBanResponseFromLocal(ban, pluginInstance));
                 }
             }

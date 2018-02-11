@@ -75,6 +75,9 @@ public class ConfigurationFile {
      */
     private CommentedConfigurationNode config;
 
+    /**
+     * Minimum group needed to be admin.
+     */
     private CpasGroupModel atleastAdminGroup;
 
     /**

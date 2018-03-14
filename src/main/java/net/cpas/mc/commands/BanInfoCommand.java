@@ -75,8 +75,19 @@ public class BanInfoCommand extends BaseCommand {
      */
     private class ProcessBanInfoResponse implements Cpas.ProcessResponse<BanInfoModel> {
 
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The commander who is executing this command.
+         */
         private final CommandSource src;
+
+        /**
+         * The user to get info on.
+         */
         private final User user;
 
         /**

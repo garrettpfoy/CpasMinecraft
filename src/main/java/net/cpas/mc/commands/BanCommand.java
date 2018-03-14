@@ -88,8 +88,8 @@ public class BanCommand extends BaseCommand {
     }
 
     /**
-     * @param src the user who is banning.
-     * @param user  the user who is being banned.
+     * @param src  the user who is banning.
+     * @param user the user who is being banned.
      * @return true if the admin can ban the user.
      */
     private boolean checkBanRules(CommandSource src, User user) {
@@ -102,23 +102,23 @@ public class BanCommand extends BaseCommand {
         InfoModel adminInfoModel = null;
         InfoModel userInfoModel = null;
         for (InfoModel infoModel : pluginInstance.getAdminPlayerCache()) {
-            if(infoModel.gameId.equals(adminUser.getUniqueId())) {
+            if (infoModel.gameId.equals(adminUser.getUniqueId())) {
                 adminInfoModel = infoModel;
             }
             // If user is banning self
-            if(infoModel.gameId.equals(user.getUniqueId())) {
+            if (infoModel.gameId.equals(user.getUniqueId())) {
                 userInfoModel = infoModel;
             }
         }
         // If user is null i.e pub yes; if admin is null heck no
-        if(userInfoModel == null) {
+        if (userInfoModel == null) {
             return true;
-        } else if(adminInfoModel == null) {
+        } else if (adminInfoModel == null) {
             return false;
         }
         // Don't ban if user is higher rank than cut off.
         final int cutOff = pluginInstance.getConfig().getBanRankThreshold();
-        if(userInfoModel.primaryGroup.rank >= cutOff && adminInfoModel.primaryGroup.rank < cutOff) {
+        if (userInfoModel.primaryGroup.rank >= cutOff && adminInfoModel.primaryGroup.rank < cutOff) {
             return false;
         }
         return true;
@@ -131,7 +131,7 @@ public class BanCommand extends BaseCommand {
         final User user = castArgument(args, "user", User.class);
 
         // Check ban rules first
-        if(!checkBanRules(src, user)) {
+        if (!checkBanRules(src, user)) {
             src.sendMessage(Text.of(TextColors.RED, "You can not ban that user."));
             return CommandResult.success();
         }
@@ -141,13 +141,13 @@ public class BanCommand extends BaseCommand {
         // default admin specified in its config as the banning admin
         final String bannerId = (src instanceof User ? ((User) src).getUniqueId().toString() : "");
         Cpas.getInstance().banUser(
-            user.getUniqueId().toString(),
-            user.getName(),
-            bannerId,
-            getAdminList(),
-            duration,
-            reason,
-            new ProcessBanResponse(pluginInstance, src, user, reason, duration));
+                user.getUniqueId().toString(),
+                user.getName(),
+                bannerId,
+                getAdminList(),
+                duration,
+                reason,
+                new ProcessBanResponse(pluginInstance, src, user, reason, duration));
 
         // Unfortunately we can't guarantee success at this point since the the result of the call will be sent to the
         // user asynchronously, but most of the time it should succeed, and if it doesn't it will print an error message
@@ -160,10 +160,29 @@ public class BanCommand extends BaseCommand {
      */
     private static class ProcessBanResponse implements Cpas.ProcessResponse<SuccessResponseModel> {
 
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The commander who is executing this command.
+         */
         private final CommandSource src;
+
+        /**
+         * The user to ban.
+         */
         private final User user;
+
+        /**
+         * The reason the user is being banned.
+         */
         private final String reason;
+
+        /**
+         * How long the user will be banned for.
+         */
         private final int duration;
 
         /**
@@ -187,33 +206,33 @@ public class BanCommand extends BaseCommand {
         public void process(SuccessResponseModel successResponseModel, String errorResponse) {
             if (errorResponse != null || !successResponseModel.success) {
                 pluginInstance.getLogger().error(String.format(
-                    "%s attempted to ban %s which resulted in the error: %s",
-                    src.getName(),
-                    user.getUniqueId(),
-                    (errorResponse == null ? "failure" : errorResponse)));
+                        "%s attempted to ban %s which resulted in the error: %s",
+                        src.getName(),
+                        user.getUniqueId(),
+                        (errorResponse == null ? "failure" : errorResponse)));
 
                 // Attempt to ban locally
                 src.sendMessage(Text.of(TextColors.GRAY, "Failed to ban on CPAS, Attempting to ban locally..."));
-                final BanService banService = pluginInstance.getGame().getServiceManager().provideUnchecked(BanService.class);
+                final BanService banService = pluginInstance.getBanService();
                 //Minecraft has a bug where the start time is always the same as the end time on a temp ban
                 final Instant start = Instant.now();
                 final Instant end = Instant.now().plusSeconds(duration * 60);
                 final Ban userLocalBan = duration == 0
-                    ? Ban.builder()
-                    .type(BanTypes.PROFILE)
-                    .profile(user.getProfile())
-                    .startDate(start)
-                    .reason(Text.of(reason))
-                    .source(src)
-                    .build()
-                    : Ban.builder()
-                    .type(BanTypes.PROFILE)
-                    .profile(user.getProfile())
-                    .startDate(start)
-                    .reason(Text.of(reason))
-                    .source(src)
-                    .expirationDate(end)
-                    .build();
+                        ? Ban.builder()
+                        .type(BanTypes.PROFILE)
+                        .profile(user.getProfile())
+                        .startDate(start)
+                        .reason(Text.of(reason))
+                        .source(src)
+                        .build()
+                        : Ban.builder()
+                        .type(BanTypes.PROFILE)
+                        .profile(user.getProfile())
+                        .startDate(start)
+                        .reason(Text.of(reason))
+                        .source(src)
+                        .expirationDate(end)
+                        .build();
                 banService.addBan(userLocalBan);
             }
 

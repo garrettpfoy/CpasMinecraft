@@ -73,11 +73,25 @@ public class InfoCommand extends BaseCommand {
 
     /**
      * Class that handles the processing of the response to the info command
+     *
+     * @author oey192
+     * @author agent6262
      */
     private static class ProcessInfoResponse implements Cpas.ProcessResponse<InfoModel> {
 
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The commander who is executing this command.
+         */
         private final CommandSource src;
+
+        /**
+         * The user to get info on.
+         */
         private final User user;
 
         /**

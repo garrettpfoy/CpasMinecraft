@@ -35,14 +35,12 @@ import net.cpas.model.CpasGroupModel;
 import net.cpas.model.InfoModel;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -51,7 +49,6 @@ import org.spongepowered.api.util.Tristate;
 import javax.annotation.Nonnull;
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Listens to the {@link ClientConnectionEvent.Login} event.
@@ -75,7 +72,7 @@ public class LoginListener extends BaseEvent {
      * @param event the {@link ClientConnectionEvent.Login} event.
      */
     @Listener
-    public void onLogin(@Nonnull ClientConnectionEvent.Login event) throws ExecutionException, InterruptedException {
+    public void onLogin(@Nonnull ClientConnectionEvent.Login event) {
         final UUID playerUUID = event.getProfile().getUniqueId();
         final InetSocketAddress playerAddress = event.getConnection().getAddress();
         final Optional<Player> player = event.getCause().first(Player.class);
@@ -94,9 +91,24 @@ public class LoginListener extends BaseEvent {
      */
     private static class ProcessInfoModelResponse implements Cpas.ProcessResponse<InfoModel> {
 
+        /**
+         * The permission context to set in.
+         */
         private static final Set<Context> context = new HashSet<>();
+
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The uuid of the player.
+         */
         private final UUID playerUUID;
+
+        /**
+         * The callback player.
+         */
         private final Player player;
 
         /**
@@ -114,12 +126,12 @@ public class LoginListener extends BaseEvent {
 
         /**
          * @param groups the list of groups to check if it contains a given group.
-         * @param group the group to check for.
+         * @param group  the group to check for.
          * @return true if the list contains the given group false otherwise.
          */
         private boolean checkContainingGroups(List<CpasGroupModel> groups, CpasGroupModel group) {
             for (CpasGroupModel cpasGroupModel : groups) {
-                if(cpasGroupModel.rank == group.rank && cpasGroupModel.name.equals(group.name)) {
+                if (cpasGroupModel.rank == group.rank && cpasGroupModel.name.equals(group.name)) {
                     return true;
                 }
             }
@@ -132,20 +144,18 @@ public class LoginListener extends BaseEvent {
                 return;
             }
 
-            final CpasGroupModel atLeastAdminGroup = pluginInstance.getConfig().getAtleastAdminGroup();
+            final CpasGroupModel atLeastAdminGroup = pluginInstance.getConfig().getAtLeastAdminGroup();
             // Add admin to admin list
             if (checkContainingGroups(response.groups, atLeastAdminGroup)) {
                 pluginInstance.getAdminPlayerCache().add(response);
             }
             // Init stuff
-            // TODO: check for object id change i.e. rule #73
-            final PermissionService permissionService = Sponge.getGame().getServiceManager().provideUnchecked(PermissionService.class);
-            final SubjectCollection groups = permissionService.getGroupSubjects();
+            final PermissionService permissionService = pluginInstance.getPermissionService();
             final Optional<Subject> optionalSubject = permissionService.getUserSubjects().getSubject(playerUUID.toString());
             // When SubjectCollections are queried for a Subject they will automatically be created, if they do not
             // already exist. However they might not necessarily show up in getAllSubjects() unless none-default values
             // are set. If for some odd reason A user is not present log ad return;
-            if(!optionalSubject.isPresent()) {
+            if (!optionalSubject.isPresent()) {
                 pluginInstance.getLogger().warn("Subject data not created, please contact plugin maintainer.");
                 return;
             }
@@ -154,66 +164,54 @@ public class LoginListener extends BaseEvent {
 
             // Remove any other primary groups and add primary group just in case
             if (pluginInstance.getConfig().usePrimaryGroups()) {
-                try {
-                    // Remove any other primary groups
-                    final Map<Object, ? extends CommentedConfigurationNode> primaryGroups = pluginInstance.getConfig().getPrimaryGroups();
-                    for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : primaryGroups.entrySet()) {
-                        // No point in not removing the primary group because it will just get added again anyway.
-                        // Also you can not check if a player has a parent no hasParent() function.
-                        playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
+                // Remove any other primary groups
+                final Map<Object, ? extends CommentedConfigurationNode> primaryGroups = pluginInstance.getConfig().getPrimaryGroups();
+                for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : primaryGroups.entrySet()) {
+                    // No point in not removing the primary group because it will just get added again anyway.
+                    // Also you can not check if a player has a parent no hasParent() function.
+                    playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
+                }
+                // Add primary group just in case
+                final String strRank = String.valueOf(response.primaryGroup.rank);
+                if (primaryGroups.containsKey(strRank)) {
+                    playerData.setPermission(context, groupsText + primaryGroups.get(strRank).getString(), Tristate.TRUE);
+                    // Remove 'noGroup' if there is a primary group assigned
+                    if (pluginInstance.getConfig().useNoGroup()) {
+                        final String noGroupGroup = pluginInstance.getConfig().getNoGroupGroup();
+                        playerData.setPermission(context, groupsText + noGroupGroup, Tristate.UNDEFINED);
                     }
-                    // Add primary group just in case
-                    final String strRank = String.valueOf(response.primaryGroup.rank);
-                    if (primaryGroups.containsKey(strRank)) {
-                        playerData.setPermission(context, groupsText + primaryGroups.get(strRank).getString(), Tristate.TRUE);
-                        // Remove 'noGroup' if there is a primary group assigned
-                        if (pluginInstance.getConfig().useNoGroup()) {
-                            final String noGroupGroup = pluginInstance.getConfig().getNoGroupGroup();
-                            playerData.setPermission(context, groupsText + noGroupGroup, Tristate.UNDEFINED);
-                        }
-                    } else {
-                        // Add 'noGroup' if there is no primary group assigned
-                        if (pluginInstance.getConfig().useNoGroup()) {
-                            final String noGroupGroup = pluginInstance.getConfig().getNoGroupGroup();
-                            playerData.setPermission(context, groupsText + noGroupGroup, Tristate.TRUE);
-                        }
+                } else {
+                    // Add 'noGroup' if there is no primary group assigned
+                    if (pluginInstance.getConfig().useNoGroup()) {
+                        final String noGroupGroup = pluginInstance.getConfig().getNoGroupGroup();
+                        playerData.setPermission(context, groupsText + noGroupGroup, Tristate.TRUE);
                     }
-                } catch (ObjectMappingException e) {
-                    pluginInstance.getLogger().warn(e.getMessage());
                 }
             }
             // Remove any other division groups and add division group just in case
             if (pluginInstance.getConfig().useDivisionGroups()) {
-                try {
-                    final Map<Object, ? extends CommentedConfigurationNode> divisionGroups = pluginInstance.getConfig().getDivisionGroups();
-                    for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : divisionGroups.entrySet()) {
-                        // No point in not removing the division group because it will just get added again anyway.
-                        // Also you can not check if a player has a parent, no hasParent() function.
-                        playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
-                    }
-                    // Add division group just in case
-                    if (divisionGroups.containsKey(response.division)) {
-                        playerData.setPermission(context, groupsText + divisionGroups.get(response.division).getString(), Tristate.TRUE);
-                    }
-                } catch (ObjectMappingException e) {
-                    pluginInstance.getLogger().warn(e.getMessage());
+                final Map<Object, ? extends CommentedConfigurationNode> divisionGroups = pluginInstance.getConfig().getDivisionGroups();
+                for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : divisionGroups.entrySet()) {
+                    // No point in not removing the division group because it will just get added again anyway.
+                    // Also you can not check if a player has a parent, no hasParent() function.
+                    playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
+                }
+                // Add division group just in case
+                if (divisionGroups.containsKey(response.division)) {
+                    playerData.setPermission(context, groupsText + divisionGroups.get(response.division).getString(), Tristate.TRUE);
                 }
             }
             // Remove any other secondary groups and add secondary groups just in case
             if (pluginInstance.getConfig().useSecondaryGroups()) {
-                try {
-                    final Map<Object, ? extends CommentedConfigurationNode> secondaryGroups = pluginInstance.getConfig().getSecondaryGroups();
-                    for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : secondaryGroups.entrySet()) {
-                        // If you have a group you are not supposed to have it will remove it
-                        // else it will add / re-add any group you should have.
-                        if (isMemberOfGroup(response, Integer.valueOf(kvp.getKey().toString()))) {
-                            playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.TRUE);
-                        } else {
-                            playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
-                        }
+                final Map<Object, ? extends CommentedConfigurationNode> secondaryGroups = pluginInstance.getConfig().getSecondaryGroups();
+                for (Map.Entry<Object, ? extends CommentedConfigurationNode> kvp : secondaryGroups.entrySet()) {
+                    // If you have a group you are not supposed to have it will remove it
+                    // else it will add / re-add any group you should have.
+                    if (isMemberOfGroup(response, Integer.valueOf(kvp.getKey().toString()))) {
+                        playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.TRUE);
+                    } else {
+                        playerData.setPermission(context, groupsText + kvp.getValue().getString(), Tristate.UNDEFINED);
                     }
-                } catch (ObjectMappingException e) {
-                    pluginInstance.getLogger().warn(e.getMessage());
                 }
             }
             //Set and remove ds

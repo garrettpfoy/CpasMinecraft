@@ -32,7 +32,6 @@ package net.cpas.mc.events;
 import net.cpas.Cpas;
 import net.cpas.mc.MinecraftCpas;
 import net.cpas.model.BanInfoModel;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.IsCancelled;
@@ -70,8 +69,8 @@ public class AuthListener extends BaseEvent {
      *
      * @param event the {@link ClientConnectionEvent.Auth} event.
      */
-    @IsCancelled(Tristate.UNDEFINED)
-    @Listener(order = Order.EARLY)
+    @IsCancelled (Tristate.UNDEFINED)
+    @Listener (order = Order.EARLY)
     public void onAuth(@Nonnull ClientConnectionEvent.Auth event) throws ExecutionException, InterruptedException {
         final UUID playerUUID = event.getProfile().getUniqueId();
 
@@ -86,7 +85,14 @@ public class AuthListener extends BaseEvent {
      */
     private static class ProcessBanInfoResponse implements Cpas.ProcessResponse<BanInfoModel> {
 
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The event to handle on auth.
+         */
         private final ClientConnectionEvent.Auth event;
 
         /**
@@ -103,25 +109,24 @@ public class AuthListener extends BaseEvent {
         @Override
         public void process(BanInfoModel response, String errorMessage) {
             if (errorMessage == null && response.duration != 0) {
-                final String kickText = response.duration < 0 ? "You are permanently banned from this server.\nReason: "+
+                final String kickText = response.duration < 0 ? "You are permanently banned from this server.\nReason: " +
                         response.reason :
-                        "You are temporarily banned from this server, your ban will expire in "+response.duration+" minuets."+
-                                "\nReason: "+response.reason;
+                        "You are temporarily banned from this server, your ban will expire in " + response.duration + " minuets." +
+                                "\nReason: " + response.reason;
                 event.setCancelled(true);
                 event.setMessage(Text.of(kickText));
             } else {
                 //Minecraft only knows about perm bans so if you want to show time left on temp bans we need this
-                // TODO: check for object id change i.e. rule #73
-                final BanService banService =  Sponge.getGame().getServiceManager().provideUnchecked(BanService.class);
+                final BanService banService = pluginInstance.getBanService();
                 final GameProfile userProfile = event.getProfile();
                 if (banService.isBanned(userProfile)) {
-                    banService.getBanFor(userProfile).ifPresent(profile-> {
+                    banService.getBanFor(userProfile).ifPresent(profile->{
                         final Optional<Instant> optionalInstant = profile.getExpirationDate();
                         final String kickText = optionalInstant.map(instant->
                                 "You are temporarily banned from this server, your ban will expire in: " +
-                                        ((instant.getEpochSecond()-Instant.now().getEpochSecond())*60)+" minuets"+
-                                        "\nReason: "+TextSerializers.FORMATTING_CODE.serialize(profile.getReason().orElse(Text.of(""))))
-                                .orElse("You are permanently banned from this server.\nReason: "+
+                                        ((instant.getEpochSecond() - Instant.now().getEpochSecond()) * 60) + " minuets" +
+                                        "\nReason: " + TextSerializers.FORMATTING_CODE.serialize(profile.getReason().orElse(Text.of(""))))
+                                .orElse("You are permanently banned from this server.\nReason: " +
                                         TextSerializers.FORMATTING_CODE.serialize(profile.getReason().orElse(Text.of(""))));
                         event.setCancelled(true);
                         event.setMessage(Text.of(kickText));

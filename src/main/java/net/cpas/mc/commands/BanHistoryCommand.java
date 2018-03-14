@@ -67,7 +67,11 @@ public class BanHistoryCommand extends BaseCommand {
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         final User user = castArgument(args, "user", User.class);
         src.sendMessage(Text.of(TextColors.GRAY, "Fetching ban history from server..."));
-        Cpas.getInstance().getBanHistory(user.getUniqueId().toString(), pluginInstance.getConfig().numberOfBanHistoryRecords(), new ProcessBanHistoryResponse(pluginInstance, src, user));
+        Cpas.getInstance().getBanHistory(
+                user.getUniqueId().toString(),
+                pluginInstance.getConfig().numberOfBanHistoryRecords(),
+                new ProcessBanHistoryResponse(pluginInstance, src, user)
+        );
         // Unfortunately we can't guarantee success at this point since the desired information will be sent to the user
         // asynchronously, but most of the time it should succeed, and if it doesn't it will print an error message to
         // the user anyway so we may as well mark it as having succeeded.
@@ -79,8 +83,19 @@ public class BanHistoryCommand extends BaseCommand {
      */
     private static class ProcessBanHistoryResponse implements Cpas.ProcessResponse<BanHistoryModel> {
 
+        /**
+         * The {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The commander who is executing this command.
+         */
         private final CommandSource src;
+
+        /**
+         * The user to get info on.
+         */
         private final User user;
 
         /**

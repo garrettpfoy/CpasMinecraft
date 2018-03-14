@@ -40,7 +40,7 @@ import javax.annotation.Nonnull;
  *
  * @author agent6262
  */
-public class JoinListener extends BaseEvent{
+public class JoinListener extends BaseEvent {
 
     /**
      * Creates a new {@link JoinListener} object.

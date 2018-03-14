@@ -39,6 +39,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameState;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.living.player.User;
@@ -50,6 +51,8 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
 
@@ -67,7 +70,7 @@ import java.util.function.Supplier;
  * @see <a href="https://docs.spongepowered.org/stable/en/plugin/injection.html#injection-examples">
  * Dependency Injection</a>
  */
-@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.2.0", description = "The Minecraft cpas server endpoint.")
+@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.2.1", description = "The Minecraft cpas server endpoint.")
 public class MinecraftCpas {
 
     /**
@@ -114,7 +117,7 @@ public class MinecraftCpas {
     private Game game;
 
     /**
-     * Stores a chache of InfoModels when a player connects if they are an admin.
+     * Stores a cache of InfoModels when a player connects if they are an admin.
      */
     private TreeSet<InfoModel> adminPlayerCache;
 
@@ -122,6 +125,13 @@ public class MinecraftCpas {
      * Config wrapper for the base sponge {@link CommentedConfigurationNode}.
      */
     private final ConfigurationFile config = ConfigurationFile.getInstance();
+
+    /**
+     * The ban service for the plugin.
+     */
+    private BanService banService;
+
+    private PermissionService permissionService;
 
     /**
      * The {@link GamePreInitializationEvent} is triggered. During this state, the plugin gets ready for
@@ -215,10 +225,33 @@ public class MinecraftCpas {
     }
 
     /**
+     * @return The {@link BanService} for this plugin to use.
+     */
+    public BanService getBanService() {
+        if (this.banService == null) {
+            Sponge.getServiceManager().provide(BanService.class).ifPresent(banService1->this.banService = banService1);
+        }
+        return this.banService;
+    }
+
+    /**
+     * @return The {@link PermissionService} for this plugin to use.
+     */
+    public PermissionService getPermissionService() {
+        if (this.permissionService == null) {
+            Sponge.getServiceManager().provide(PermissionService.class).ifPresent(permissionService1->this.permissionService = permissionService1);
+        }
+        return this.permissionService;
+    }
+
+    /**
      * Class that attempts to push local bans to CPAS web.
      */
     private static class RunLocalBanProcess implements Runnable {
 
+        /**
+         * the {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
 
         /**
@@ -232,7 +265,7 @@ public class MinecraftCpas {
 
         @Override
         public void run() {
-            final BanService banService = pluginInstance.getGame().getServiceManager().provideUnchecked(BanService.class);
+            final BanService banService = pluginInstance.getBanService();
             for (Ban.Profile ban : banService.getProfileBans()) {
                 // Set the duration
                 final long duration;
@@ -270,7 +303,14 @@ public class MinecraftCpas {
      */
     private static class ProcessBanResponseFromLocal implements Cpas.ProcessResponse<SuccessResponseModel> {
 
+        /**
+         * the {@link MinecraftCpas} instance.
+         */
         private final MinecraftCpas pluginInstance;
+
+        /**
+         * The ban to process.
+         */
         private final Ban ban;
 
         /**

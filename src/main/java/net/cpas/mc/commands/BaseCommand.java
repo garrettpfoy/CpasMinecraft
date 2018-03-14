@@ -66,12 +66,13 @@ abstract class BaseCommand implements CommandExecutor {
      * @param clazz The class to cast the key to
      * @param <T>   The type of the return value as specified by the {@code clazz} parameter
      * @return The value extracted from the {@link CommandContext} cast to the requested type
+     *
      * @throws CommandException if no arguments with the given {@code key} are present in the {@link CommandContext}
      */
     @Nonnull
     <T> T castArgument(@Nonnull CommandContext args, @Nonnull String key, @Nonnull Class<T> clazz) throws CommandException {
         return args.getOne(Text.of(key))
                 .map(clazz::cast)
-                .orElseThrow(() -> new CommandException(Text.of("'" + key + "' did not match any provided arguments")));
+                .orElseThrow(()->new CommandException(Text.of("'" + key + "' did not match any provided arguments")));
     }
 }

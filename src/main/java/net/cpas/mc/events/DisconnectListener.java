@@ -44,7 +44,7 @@ import java.util.UUID;
  *
  * @author agent6262
  */
-public class DisconnectListener extends BaseEvent{
+public class DisconnectListener extends BaseEvent {
 
     /**
      * Creates a new {@link DisconnectListener} object.
@@ -73,12 +73,14 @@ public class DisconnectListener extends BaseEvent{
 
     /**
      * Get the admin {@link InfoModel} from a {@link UUID}
+     *
      * @param uuid the {@link UUID} of a potential admin
      * @return {@link InfoModel} of the admin or null if not present
      */
     private InfoModel playerInfoModel(UUID uuid) {
         for (InfoModel infoModel : pluginInstance.getAdminPlayerCache()) {
-            if (infoModel.gameId.equals(uuid)) return infoModel;
+            if (infoModel.gameId.equals(uuid))
+                return infoModel;
         }
         return null;
     }

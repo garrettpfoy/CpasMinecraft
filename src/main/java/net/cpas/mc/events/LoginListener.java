@@ -152,6 +152,11 @@ public class LoginListener extends BaseEvent {
             }
 
             final CpasGroupModel atLeastAdminGroup = pluginInstance.getConfig().getAtLeastAdminGroup();
+            // Remove admin from list just in case they are still in in it.
+            final InfoModel adminInfoModel = pluginInstance.getPlayerInfoModel(playerUUID);
+            if (adminInfoModel != null) {
+                pluginInstance.getAdminPlayerCache().remove(adminInfoModel);
+            }
             // Add admin to admin list
             if (checkContainingGroups(response.groups, atLeastAdminGroup)) {
                 pluginInstance.getAdminPlayerCache().add(response);

@@ -29,16 +29,16 @@
  */
 package net.cpas.mc.commands;
 
-import javax.annotation.Nonnull;
-
-import net.cpas.mc.MinecraftCpas;
 import com.google.common.base.Preconditions;
+import net.cpas.mc.MinecraftCpas;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.text.Text;
+
+import javax.annotation.Nonnull;
 
 /**
  * The class that registers all commands for the {@link MinecraftCpas} plugin.
@@ -92,6 +92,12 @@ public class CommandRegistrar {
                 .permission("cpas.commands.version")
                 .executor(new VersionCommand(pluginInstance))
                 .build();
+        final CommandSpec updateUserCommand = CommandSpec.builder()
+                .arguments(GenericArguments.user(Text.of("user")))
+                .description(Text.of("Updates a users status (fetches user info from CPAS server)."))
+                .permission("cpas.commands.updateuser")
+                .executor(new UpdateUserCommand(pluginInstance))
+                .build();
         final CommandSpec baseCommand = CommandSpec.builder()
                 .child(infoCommand, "info")
                 .child(banCommand, "ban")
@@ -99,6 +105,7 @@ public class CommandRegistrar {
                 .child(banInfoCommand, "baninfo")
                 .child(reloadCommand, "reload")
                 .child(versionCommand, "version")
+                .child(updateUserCommand, "updateuser")
                 .build();
 
         final CommandManager commandManager = Sponge.getCommandManager();

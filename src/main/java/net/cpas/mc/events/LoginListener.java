@@ -34,7 +34,6 @@ import net.cpas.mc.MinecraftCpas;
 import net.cpas.model.CpasGroupModel;
 import net.cpas.model.InfoModel;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -80,7 +79,7 @@ public class LoginListener extends BaseEvent {
         //Get the player info
         if (player.isPresent()) {
             Cpas.getInstance().getInfo(playerUUID.toString(), playerAddress.getAddress().getHostAddress(), false,
-                    new ProcessInfoModelResponse(pluginInstance, playerUUID, player.get()));
+                    new ProcessInfoModelResponse(pluginInstance, playerUUID, player.get(), true));
         } else {
             pluginInstance.getLogger().info("Attempted to fire Login event for non player.");
         }
@@ -89,7 +88,7 @@ public class LoginListener extends BaseEvent {
     /**
      * Class that handles the processing of the response from the Login event
      */
-    private static class ProcessInfoModelResponse implements Cpas.ProcessResponse<InfoModel> {
+    public static class ProcessInfoModelResponse implements Cpas.ProcessResponse<InfoModel> {
 
         /**
          * The permission context to set in.
@@ -112,16 +111,24 @@ public class LoginListener extends BaseEvent {
         private final Player player;
 
         /**
+         * States if this is a login callback.
+         */
+        private final boolean login;
+
+        /**
          * Creates a new {@link ProcessInfoModelResponse} object.
          *
          * @param pluginInstance the {@link MinecraftCpas} instance.
          * @param playerUUID     The {@link UUID} of the player
          * @param player         the player {@link Optional} object
+         * @param login          states if this is a login callback.
          */
-        ProcessInfoModelResponse(@Nonnull MinecraftCpas pluginInstance, @Nonnull UUID playerUUID, @Nonnull Player player) {
+        protected ProcessInfoModelResponse(@Nonnull MinecraftCpas pluginInstance, @Nonnull UUID playerUUID,
+                                           @Nonnull Player player, boolean login) {
             this.pluginInstance = pluginInstance;
             this.playerUUID = playerUUID;
             this.player = player;
+            this.login = login;
         }
 
         /**
@@ -215,7 +222,7 @@ public class LoginListener extends BaseEvent {
                 }
             }
             //Set and remove ds
-            if (pluginInstance.getConfig().useDsGroup()) {
+            if (login && pluginInstance.getConfig().useDsGroup()) {
                 if (response.dsInfo.isDedicatedSupporter) {
                     playerData.setPermission(context, groupsText + pluginInstance.getConfig().getDsGroup(), Tristate.TRUE);
                 } else {

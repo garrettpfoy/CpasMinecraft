@@ -52,7 +52,6 @@ import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
 
@@ -60,8 +59,8 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 /**
  * Main plugin class that sponge will load. Sponge will also use Guice to inject dependency
@@ -70,7 +69,7 @@ import java.util.function.Supplier;
  * @see <a href="https://docs.spongepowered.org/stable/en/plugin/injection.html#injection-examples">
  * Dependency Injection</a>
  */
-@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.2.1", description = "The Minecraft cpas server endpoint.")
+@Plugin (id = "cpas", name = "Minecraft Cpas", version = "1.3.1", description = "The Minecraft cpas server endpoint.")
 public class MinecraftCpas {
 
     /**
@@ -242,6 +241,20 @@ public class MinecraftCpas {
             Sponge.getServiceManager().provide(PermissionService.class).ifPresent(permissionService1->this.permissionService = permissionService1);
         }
         return this.permissionService;
+    }
+
+    /**
+     * Get the admin {@link InfoModel} from a {@link UUID}
+     *
+     * @param uuid the {@link UUID} of a potential admin
+     * @return {@link InfoModel} of the admin or null if not present
+     */
+    public InfoModel getPlayerInfoModel(UUID uuid) {
+        for (InfoModel infoModel : this.getAdminPlayerCache()) {
+            if (infoModel.gameId.equals(uuid))
+                return infoModel;
+        }
+        return null;
     }
 
     /**

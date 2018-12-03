@@ -37,7 +37,6 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Listens to the {@link ClientConnectionEvent.Disconnect} event.
@@ -64,24 +63,10 @@ public class DisconnectListener extends BaseEvent {
     public void onDisconnect(@Nonnull ClientConnectionEvent.Disconnect event) {
         final Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
-            final InfoModel adminInfoModel = playerInfoModel(player.get().getUniqueId());
+            final InfoModel adminInfoModel = pluginInstance.getPlayerInfoModel(player.get().getUniqueId());
             if (adminInfoModel != null) {
                 pluginInstance.getAdminPlayerCache().remove(adminInfoModel);
             }
         }
-    }
-
-    /**
-     * Get the admin {@link InfoModel} from a {@link UUID}
-     *
-     * @param uuid the {@link UUID} of a potential admin
-     * @return {@link InfoModel} of the admin or null if not present
-     */
-    private InfoModel playerInfoModel(UUID uuid) {
-        for (InfoModel infoModel : pluginInstance.getAdminPlayerCache()) {
-            if (infoModel.gameId.equals(uuid))
-                return infoModel;
-        }
-        return null;
     }
 }

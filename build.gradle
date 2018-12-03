@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 
 group 'net.cpas'
 project.ext.baseName = 'cpas'
-version '1.2.0'
+version '1.3.1'
 description = 'Minecraft Cpas'
 project.ext.spongeServer = "1.12.2-7.1.0-BETA-10"
 
@@ -62,17 +62,6 @@ license {
         java='SLASHSTAR_STYLE'
     }
 }
-
-/*jar {
-    baseName = project.ext.baseName
-    version =  version
-    from configurations.releaseJar.collect { it.isDirectory() ? it : zipTree(it) }
-
-    manifest {
-        attributes(
-                "Class-Path": configurations.releaseJar.collect { it.getName() }.join(' '))
-    }
-}*/
 
 shadowJar {
     baseName = project.ext.baseName

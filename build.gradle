@@ -4,10 +4,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
-import java.nio.channels.Channels
-import java.nio.channels.FileChannel
-import java.nio.channels.ReadableByteChannel
-
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
@@ -33,12 +29,7 @@ sponge {
 repositories {
     mavenCentral()
     maven {
-        name = 'reallifegames'
-        url = 'https://reallifegames.net/artifactory/gradle-release'
-        credentials {
-            username = "$rlgMavenUser"
-            password = "$rlgMavenPassword"
-        }
+        url  "https://dl.bintray.com/agent6262/general"
     }
 }
 
@@ -47,11 +38,11 @@ configurations {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:7.0.0'
-    compile 'net.cpas:CpasLibrary:1.0.0'
+    compile 'org.spongepowered:spongeapi:7.1.0'
+    compile 'net.cpas:CpasLibrary:1.0.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 
-    shadow 'net.cpas:CpasLibrary:1.0.0'
+    shadow 'net.cpas:CpasLibrary:1.0.3'
     shadow 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 }
 
@@ -73,81 +64,4 @@ shadowJar {
     relocate 'com.fasterxml.jackson', 'net.cpas.mc.fasterxml'
 }
 
-task serverSetup(type: StartSetupTask)
-
-task startServer (type: JavaExec) {
-    standardInput = System.in
-    standardOutput = System.out
-
-    workingDir = "server"
-    main = "-jar"
-    args = ["spongevanilla.jar"]
-}
-
 build.dependsOn.add("shadowJar")
-serverSetup.dependsOn build
-startServer.dependsOn serverSetup
-startServer.logging.captureStandardOutput LogLevel.QUIET
-
-class StartSetupTask extends DefaultTask {
-
-    @TaskAction
-    def run() {
-        final File serverDir = new File("server")
-        if (!serverDir.exists()) {
-            serverDir.mkdir()
-        }
-
-        this.downloadServer()
-        this.setEULA()
-
-        final File pluginBuild = new File("build/libs", "${project.ext.baseName}-${project.version}.jar")
-        final File pluginServer = new File("server/mods", "${project.ext.baseName}-${project.version}.jar")
-        this.copyPlugin(pluginBuild, pluginServer)
-    }
-
-    def downloadServer() {
-        final String url = "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/${project.ext.spongeServer}/spongevanilla-${project.ext.spongeServer}.jar"
-        this.getLogger().lifecycle("Downloading: "+url)
-        try {
-            final URL connection = new URL(url)
-            final File serverLocation = new File("server", "spongevanilla.jar")
-            if (serverLocation.exists()) {
-                this.getLogger().lifecycle("Done: cached")
-            } else {
-                final ReadableByteChannel rbc = Channels.newChannel(connection.openStream())
-                final FileOutputStream fos = new FileOutputStream(serverLocation)
-                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE)
-                this.getLogger().lifecycle("Done.")
-            }
-        } catch (IOException e) {
-            throw new GradleException("Failed to download: " + url + " : " + e.getMessage())
-        }
-    }
-
-    def setEULA() {
-        final File eula = new File("server", "eula.txt")
-        if (!eula.exists()) {
-            final PrintWriter writer = new PrintWriter(eula)
-            writer.println("eula=true")
-            writer.close()
-        }
-    }
-
-    def copyPlugin(File source, File dest) {
-        if (!dest.exists()) {
-            dest.getParentFile().mkdirs()
-            dest.createNewFile()
-        }
-        final FileChannel sourceChannel = new FileInputStream(source).getChannel()
-        final FileChannel destChannel = new FileOutputStream(dest).getChannel()
-        try {
-            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size())
-        } catch(Exception e) {
-            throw new GradleException("Failed to copy: " + source + " : " + e.getMessage())
-        } finally {
-            sourceChannel.close()
-            destChannel.close()
-        }
-    }
-}

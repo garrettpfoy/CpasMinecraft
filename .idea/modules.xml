@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CpasSponge.iml" filepath="$PROJECT_DIR$/.idea/modules/CpasSponge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CpasSponge.iml" filepath="$PROJECT_DIR$/.idea/modules/CpasSponge.iml" group="CpasSponge" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/CpasSponge_main.iml" filepath="$PROJECT_DIR$/.idea/modules/CpasSponge_main.iml" group="CpasSponge" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/CpasSponge_test.iml" filepath="$PROJECT_DIR$/.idea/modules/CpasSponge_test.iml" group="CpasSponge" />
     </modules>

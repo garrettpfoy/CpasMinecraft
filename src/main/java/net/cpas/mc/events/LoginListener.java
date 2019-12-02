@@ -166,7 +166,7 @@ public class LoginListener extends BaseEvent {
             final Optional<Subject> optionalSubject = permissionService.getUserSubjects().getSubject(playerUUID.toString());
             // When SubjectCollections are queried for a Subject they will automatically be created, if they do not
             // already exist. However they might not necessarily show up in getAllSubjects() unless none-default values
-            // are set. If for some odd reason A user is not present log ad return;
+            // are set. If for some odd reason A user is not present log and return;
             if (!optionalSubject.isPresent()) {
                 pluginInstance.getLogger().warn("Subject data not created, please contact plugin maintainer.");
                 return;

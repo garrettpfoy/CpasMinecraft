@@ -130,6 +130,9 @@ public class MinecraftCpas {
      */
     private BanService banService;
 
+    /**
+     * The global {@link Sponge} {@link PermissionService}.
+     */
     private PermissionService permissionService;
 
     /**

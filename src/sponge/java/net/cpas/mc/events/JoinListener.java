@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017, Tyler Bucher
  * Copyright (c) 2017, Orion Stanger
+ * Copyright (c) 2019, (Contributors)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,32 +31,36 @@
 package net.cpas.mc.events;
 
 import net.cpas.mc.MinecraftCpas;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import javax.annotation.Nonnull;
 
 /**
- * The class that registers all events for the {@link MinecraftCpas} plugin.
+ * Listens to the {@link ClientConnectionEvent.Join} event.
  *
  * @author agent6262
  */
-public final class EventRegistrar {
+public class JoinListener extends BaseEvent {
 
     /**
-     * Register all events. This should be invoked once per server lifecycle (most likely in the plugin's
-     * {@link GameInitializationEvent}. If invoked more than once per server lifecycle for any reason, this class's
-     * author will not be responsible for the stack traces and general mayhem that is caused by doing so.
+     * Creates a new {@link JoinListener} object.
      *
-     * @param pluginInstance the instance of the main plugin class
+     * @param pluginInstance the {@link MinecraftCpas} instance.
      */
-    public static void register(@Nonnull MinecraftCpas pluginInstance) {
-        final EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListeners(pluginInstance, new AuthListener(pluginInstance));
-        eventManager.registerListeners(pluginInstance, new LoginListener(pluginInstance));
-        eventManager.registerListeners(pluginInstance, new JoinListener(pluginInstance));
-        eventManager.registerListeners(pluginInstance, new DisconnectListener(pluginInstance));
-        eventManager.registerListeners(pluginInstance, new GameReloadListener(pluginInstance));
+    JoinListener(@Nonnull MinecraftCpas pluginInstance) {
+        super(pluginInstance);
+    }
+
+    /**
+     * Removes the join message if using ds group
+     *
+     * @param event the {@link ClientConnectionEvent.Join} event.
+     */
+    @Listener
+    public void onJoin(@Nonnull ClientConnectionEvent.Join event) {
+        if (pluginInstance.getConfig().useDsGroup()) {
+            event.setMessageCancelled(true);
+        }
     }
 }

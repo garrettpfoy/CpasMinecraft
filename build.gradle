@@ -4,6 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
@@ -29,18 +31,47 @@ sponge {
 repositories {
     mavenCentral()
     maven {
-        url  "https://dl.bintray.com/agent6262/general"
+        url "https://dl.bintray.com/agent6262/general"
+    }
+    maven {
+        name = 'spigot-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'md5-bungeecord'
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        name = 'vault-repo'
+        url = "http://nexus.hc.to/content/repositories/pub_releases"
+    }
+}
+
+sourceSets {
+    spigot {
+        java.srcDirs = ['src/spigot/java']
+        resources.srcDirs = ['src/spigot/resources']
+    }
+    sponge {
+        java.srcDirs = ['src/sponge/java']
+        resources.srcDirs = ['src/sponge/resources']
     }
 }
 
 configurations {
-    compile.extendsFrom shadow
+    spigotCompile.extendsFrom shadow
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:7.1.0'
-    compile 'net.cpas:CpasLibrary:1.0.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+    spongeCompile 'org.spongepowered:spongeapi:7.1.0'
+    spongeCompile 'net.cpas:CpasLibrary:1.0.3'
+    spongeCompile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+
+    spigotCompile 'com.google.code.findbugs:jsr305:3.0.1'
+    spigotCompile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    spigotCompile 'net.milkbowl.vault:VaultAPI:1.6'
+    spigotCompile 'net.cpas:CpasLibrary:1.0.3'
+    spigotCompile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
 
     shadow 'net.cpas:CpasLibrary:1.0.3'
     shadow 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
@@ -50,18 +81,28 @@ license {
     header project.file("LICENSE.txt")
     strictCheck true
     mapping {
-        java='SLASHSTAR_STYLE'
+        java = 'SLASHSTAR_STYLE'
     }
 }
 
-shadowJar {
-    baseName = project.ext.baseName
+task buildSponge(type: ShadowJar) {
+    dependsOn build
+    baseName = archivesBaseName + "-sponge"
     classifier = null
     version = version
 
+    from sourceSets.sponge.output
     configurations = [project.configurations.shadow]
-    //relocate 'net.cpas', 'net.cpas.mc.cpas'
     relocate 'com.fasterxml.jackson', 'net.cpas.mc.fasterxml'
 }
 
-build.dependsOn.add("shadowJar")
+task buildSpigot(type: ShadowJar) {
+    dependsOn build
+    baseName = archivesBaseName + "-spigot"
+    classifier = null
+    version = version
+
+    from sourceSets.spigot.output
+    configurations = [project.configurations.shadow]
+    relocate 'com.fasterxml.jackson', 'net.cpas.mc.fasterxml'
+}

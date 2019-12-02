@@ -3,7 +3,13 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="CpasSponge_main" target="1.8" />
+      <module name="CpasSponge_spigot" target="1.8" />
+      <module name="CpasSponge_sponge" target="1.8" />
       <module name="CpasSponge_test" target="1.8" />
+      <module name="MinecraftCpas_main" target="1.8" />
+      <module name="MinecraftCpas_spigot" target="1.8" />
+      <module name="MinecraftCpas_sponge" target="1.8" />
+      <module name="MinecraftCpas_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

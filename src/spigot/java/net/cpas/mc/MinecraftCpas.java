@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017, Tyler Bucher
  * Copyright (c) 2017, Orion Stanger
+ * Copyright (c) 2019, (Contributors)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,46 +28,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.cpas.mc.events;
+package net.cpas.mc;
 
-import net.cpas.mc.MinecraftCpas;
-import net.cpas.model.InfoModel;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+public class MinecraftCpas {
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-
-/**
- * Listens to the {@link ClientConnectionEvent.Disconnect} event.
- *
- * @author agent6262
- */
-public class DisconnectListener extends BaseEvent {
-
-    /**
-     * Creates a new {@link DisconnectListener} object.
-     *
-     * @param pluginInstance the {@link MinecraftCpas} instance.
-     */
-    DisconnectListener(@Nonnull MinecraftCpas pluginInstance) {
-        super(pluginInstance);
-    }
-
-    /**
-     * Removes players from the cache when they disconnect.
-     *
-     * @param event the {@link ClientConnectionEvent.Disconnect} event.
-     */
-    @Listener
-    public void onDisconnect(@Nonnull ClientConnectionEvent.Disconnect event) {
-        final Optional<Player> player = event.getCause().first(Player.class);
-        if (player.isPresent()) {
-            final InfoModel adminInfoModel = pluginInstance.getPlayerInfoModel(player.get().getUniqueId());
-            if (adminInfoModel != null) {
-                pluginInstance.getAdminPlayerCache().remove(adminInfoModel);
-            }
-        }
-    }
 }

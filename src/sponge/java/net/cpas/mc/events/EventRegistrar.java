@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017, Tyler Bucher
  * Copyright (c) 2017, Orion Stanger
+ * Copyright (c) 2019, (Contributors)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,38 +28,35 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.cpas.mc.commands;
+package net.cpas.mc.events;
+
+import net.cpas.mc.MinecraftCpas;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 
 import javax.annotation.Nonnull;
 
-import net.cpas.mc.MinecraftCpas;
-import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.text.Text;
-
 /**
- * Handle the /cpas version command
+ * The class that registers all events for the {@link MinecraftCpas} plugin.
  *
- * @author oey192
+ * @author agent6262
  */
-public class VersionCommand extends BaseCommand {
+public final class EventRegistrar {
 
     /**
-     * Creates a new {@link VersionCommand} object.
+     * Register all events. This should be invoked once per server lifecycle (most likely in the plugin's
+     * {@link GameInitializationEvent}. If invoked more than once per server lifecycle for any reason, this class's
+     * author will not be responsible for the stack traces and general mayhem that is caused by doing so.
      *
-     * @param pluginInstance the {@link MinecraftCpas} instance.
+     * @param pluginInstance the instance of the main plugin class
      */
-    VersionCommand(@Nonnull MinecraftCpas pluginInstance) {
-        super(pluginInstance);
-    }
-
-    @Nonnull
-    @Override
-    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        final String version = pluginInstance.getPluginContainer().getVersion().orElse("Unknown");
-        src.sendMessage(Text.of("Current CPAS plugin version: " + version));
-        return CommandResult.success();
+    public static void register(@Nonnull MinecraftCpas pluginInstance) {
+        final EventManager eventManager = Sponge.getEventManager();
+        eventManager.registerListeners(pluginInstance, new AuthListener(pluginInstance));
+        eventManager.registerListeners(pluginInstance, new LoginListener(pluginInstance));
+        eventManager.registerListeners(pluginInstance, new JoinListener(pluginInstance));
+        eventManager.registerListeners(pluginInstance, new DisconnectListener(pluginInstance));
+        eventManager.registerListeners(pluginInstance, new GameReloadListener(pluginInstance));
     }
 }

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017, Tyler Bucher
  * Copyright (c) 2017, Orion Stanger
+ * Copyright (c) 2019, (Contributors)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,30 +28,44 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.cpas.mc.events;
+package net.cpas.mc.commands;
 
 import net.cpas.mc.MinecraftCpas;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 
 /**
- * Contains logic shared by all events.
+ * Handle the /cpas reload command
  *
- * @author agent6262
+ * @author oey192
  */
-abstract class BaseEvent {
+public class ReloadCommand extends BaseCommand {
 
     /**
-     * The {@link MinecraftCpas} instance.
-     */
-    protected final MinecraftCpas pluginInstance;
-
-    /**
-     * Creates a new {@link BaseEvent} object.
+     * Creates a new {@link ReloadCommand} object.
      *
      * @param pluginInstance the {@link MinecraftCpas} instance.
      */
-    BaseEvent(@Nonnull MinecraftCpas pluginInstance) {
-        this.pluginInstance = pluginInstance;
+    ReloadCommand(@Nonnull MinecraftCpas pluginInstance) {
+        super(pluginInstance);
+    }
+
+    @Nonnull
+    @Override
+    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
+        if (pluginInstance.getConfig().loadConfig()) {
+            pluginInstance.getLogger().info("Reloaded the CPAS config successfully");
+            src.sendMessage(Text.of("Reloaded the CPAS config successfully"));
+            return CommandResult.success();
+        } else {
+            pluginInstance.getLogger().info("Failed to reload the CPAS config");
+            src.sendMessage(Text.of("Failed to reload the CPAS config"));
+            return CommandResult.empty();
+        }
     }
 }

@@ -29,3 +29,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+main: net.cpas.mc.Main.MinecraftCpas
+author: PickleZ
+version: 1.0.0
+name: CpasMinecraft
+API-Version: 1.13
+description: Minecraft CPAS Integration

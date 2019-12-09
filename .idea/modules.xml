@@ -3,10 +3,15 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas.iml" group="MinecraftCpas" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas.spigot.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas.spigot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas.sponge.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas.sponge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas.test.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas_main.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas_main.iml" group="MinecraftCpas" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas_spigot.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas_spigot.iml" group="MinecraftCpas" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas_sponge.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas_sponge.iml" group="MinecraftCpas" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MinecraftCpas_test.iml" filepath="$PROJECT_DIR$/.idea/modules/MinecraftCpas_test.iml" group="MinecraftCpas" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/net.cpas.MinecraftCpas.iml" filepath="$PROJECT_DIR$/.idea/modules/net.cpas.MinecraftCpas.iml" />
     </modules>
   </component>
 </project>

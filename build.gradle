@@ -4,8 +4,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
@@ -45,6 +43,15 @@ repositories {
         name = 'vault-repo'
         url = "http://nexus.hc.to/content/repositories/pub_releases"
     }
+    maven {
+        name = 'jitpack'
+        url= "https://jitpack.io/"
+    }
+
+    maven {
+        name = 'luckperms-api'
+        url = "https://repo1.maven.org/maven2/net/luckperms/api/5.0/"
+    }
 }
 
 sourceSets {
@@ -57,6 +64,7 @@ sourceSets {
         resources.srcDirs = ['src/sponge/resources']
     }
 }
+
 
 configurations {
     spigotCompile.extendsFrom shadow
@@ -72,6 +80,8 @@ dependencies {
     spigotCompile 'net.milkbowl.vault:VaultAPI:1.6'
     spigotCompile 'net.cpas:CpasLibrary:1.0.3'
     spigotCompile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+    spigotCompile 'com.github.kangarko:Foundation:5.1.2'
+    spigotCompile 'net.luckperms:api:5.0'
 
     shadow 'net.cpas:CpasLibrary:1.0.3'
     shadow 'com.fasterxml.jackson.core:jackson-databind:2.9.3'

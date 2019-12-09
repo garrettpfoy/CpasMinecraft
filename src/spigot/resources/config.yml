@@ -1,0 +1,82 @@
+#Do not change unless you know what you are doing...
+
+CPAS:
+  #Api URL for CPAS
+  apiUrl: "EMPTY"
+
+  #Api KEY for CPAS
+  apiKey: "EMPTY"
+
+  #Minecraft Server IP
+  serverIP: "EMPTY"
+
+  #Minecraft Server Port
+  port: "EMPTY"
+
+  #Groups prefix text
+  groupsPrefix: "groups."
+
+
+  #Do we use primary groups? Should this plugin assign the player's primary group?
+  usePrimaryGroups: true
+
+  #Define groups to assign. Using format: <cpasRank>: <inGameGroupName>. Case sensitive
+  primaryGroups:
+    10: "member"
+    20: "mod"
+    30: "admin"
+    60: "leadership"
+    70: "founder"
+
+  #Apply a default group (set below) to players who aren't members (defined above)?
+  useNoGroup: true
+
+  #If the above setting (useNoGroup) is set to true, a non-member will be assigned the following rank:
+  noGroupGroup: "default"
+
+  #Should this plugin assign player's division groups?
+  useDivisionGroups: true
+
+  #Set the group corresponding to MAUL's division group. Format: <cpasDivisionTag>: <inGameGroupName>
+  divisionGroups:
+    mc: "mc"
+    bf: "bf"
+    dod: "dod"
+    gmod: "gmod"
+    ow: "ow"
+    tf: "tf2"
+
+  #Should this plugin assign secondary groups (Such as EC, RC, and AT)?
+  useSecondaryGroups: true
+
+  #If useSecondaryGroups is set to true, you can define those groups here. Format: <cpasRank>: <inGameGroupName>
+  secondaryGroups:
+    31: "recruiter"
+    25: "trainer"
+
+  #Should this plugin handle giving player's their DS rank if applicable?
+  #Warning; If you have this enabled, and then disable it, you may have to manually check DS
+  useDsGroup: true
+
+  #Define the group DS retrieves
+  dsGroup: "ds"
+
+  #Here you define the minimum admin level required to be put in the admin array
+  adminLevel:
+    name: "mod"
+    rank: 20
+
+
+commands:
+  #Should this plugin override other plugin's ban command? If enabled, use /[pluginName]:ban to execute another plugin's ban
+  #For example, an essentials ban could be: /essentials:ban [player] [duration] [reason]
+  #and Minecraft's ban would be: /minecraft:ban [player]
+  #This is recommended to be true, as otherwise no real point in this plugin!
+  overrideBanCommand: true
+
+  #This is the number of bans to display using /cpas banhistory [player] command
+  #If player has less then given number, all of their bans will be displayed
+  banHistoryCount: 5
+
+  #What rank can only be banned from that rank and above? Uses value from <cpasRank>
+  banRankThreshold: 60

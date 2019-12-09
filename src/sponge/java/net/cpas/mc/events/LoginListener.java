@@ -175,7 +175,7 @@ public class LoginListener extends BaseEvent {
             final SubjectData playerData = optionalSubject.get().getSubjectData();
             final String groupsText = pluginInstance.getConfig().getGroupsPrefix();
 
-            // Remove any other primary groups and add primary group just in case
+            // Remove any other primary grpeoups and add primary group just in case
             if (pluginInstance.getConfig().usePrimaryGroups()) {
                 // Remove any other primary groups
                 final Map<Object, ? extends CommentedConfigurationNode> primaryGroups = pluginInstance.getConfig().getPrimaryGroups();

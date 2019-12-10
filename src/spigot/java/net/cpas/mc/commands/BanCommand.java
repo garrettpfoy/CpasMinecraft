@@ -120,7 +120,7 @@ public class BanCommand extends SimpleCommand {
         private final String reason;
         private final int duration;
 
-        public ProcessBanResponse(@NonNull MinecraftCpas instance, @NonNull Player admin, @NonNull Player player, @NonNull String reason, int duration) {
+        ProcessBanResponse(@NonNull MinecraftCpas instance, @NonNull Player admin, @NonNull Player player, @NonNull String reason, int duration) {
             this.instance = instance;
             this.admin = admin;
             this.player = player;

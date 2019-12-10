@@ -1,10 +1,12 @@
 package net.cpas.mc.listeners;
 
+import com.bekvon.bukkit.residence.commands.message;
 import lombok.NonNull;
 import net.cpas.Cpas;
 import net.cpas.mc.main.Instance;
 import net.cpas.mc.main.MinecraftCpas;
 import net.cpas.mc.storage.Config;
+import net.cpas.model.BanInfoModel;
 import net.cpas.model.CpasGroupModel;
 import net.cpas.model.InfoModel;
 import net.milkbowl.vault.permission.Permission;
@@ -13,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.collection.SerializedMap;
 
 import javax.naming.Context;
@@ -42,10 +45,47 @@ public class onLogin implements Listener {
          */
 
         if(event.getPlayer().isOnline()) {
-            Cpas.getInstance().getInfo(playerUUID.toString(), playerAddress.getHostAddress(), false, new ProcessInfoModelResponse(instance.getInstance(), playerUUID, event.getPlayer(), true) {
+            //checks if player is banned
+            Cpas.getInstance().getBanInfo(playerUUID.toString(), new ProcessBanInfoResponse(instance.getInstance(), event));
+            //loads a player
+            Cpas.getInstance().getInfo(playerUUID.toString(), playerAddress.getHostAddress(), false, new ProcessInfoModelResponse(instance.getInstance(), playerUUID, event.getPlayer(), true, event) {
+
             });
         }
     }
+
+
+    public static class ProcessBanInfoResponse implements Cpas.ProcessResponse<BanInfoModel> {
+        private final MinecraftCpas pluginInstance;
+        private final PlayerLoginEvent event;
+
+
+        public ProcessBanInfoResponse(@NonNull MinecraftCpas pluginInstance, @NonNull PlayerLoginEvent event) {
+            this.pluginInstance = pluginInstance;
+            this.event = event;
+        }
+
+        @Override
+        public void process(BanInfoModel response, String errorMessage) {
+            if(errorMessage == null && response.duration == -1) {
+                String permMessage = Common.colorize("&cYou are currently banned from this server\n\n&cReason: &f" + response.reason + "\n&cDuration: &fPermanent\n\n&7Contest at: https://edge-gamers.com/");
+                event.getPlayer().kickPlayer(permMessage);
+            }
+            else if(response.duration > 0) {
+                String tempMessage = Common.colorize("&cYou are currently banned from this server\n\n&cReason &f" + response.reason + "\n&cDuration: &f" + response.duration + " minute(s)\n\n&7Contest at: https://edge-gamers.com/");
+                event.getPlayer().kickPlayer(tempMessage);
+            }
+        }
+
+        @Override
+        public Class<BanInfoModel> getModelClass() {
+            return BanInfoModel.class;
+        }
+    }
+
+
+
+
 
     public static class ProcessInfoModelResponse implements Cpas.ProcessResponse<InfoModel> {
         /*
@@ -57,7 +97,7 @@ public class onLogin implements Listener {
         private final Player player;
         private final boolean login;
 
-        protected ProcessInfoModelResponse(@NonNull MinecraftCpas pluginInstance, @NonNull UUID playerUUID, @NonNull Player player, boolean login) {
+        protected ProcessInfoModelResponse(@NonNull MinecraftCpas pluginInstance, @NonNull UUID playerUUID, @NonNull Player player, boolean login, PlayerLoginEvent event) {
             this.pluginInstance = pluginInstance;
             this.playerUUID = playerUUID;
             this.player = player;
@@ -68,7 +108,7 @@ public class onLogin implements Listener {
 
             /*
             This goes through all groups CPAS gives us, and checks with the group given to see if they are a match
-            if they are, it returns true
+            if they are, it returns true.
              */
 
             for(CpasGroupModel cpasGroupModel : groups) {
@@ -104,6 +144,17 @@ public class onLogin implements Listener {
 
             final Permission permission = pluginInstance.getPerms();
             final Player player = Bukkit.getPlayer(playerUUID);
+
+            /*
+            Here we set their name to their forum name if they are not DS
+            and if they aren't Leadership or above
+             */
+
+            if(response.primaryGroup.rank > 60 || response.dsInfo.isDedicatedSupporter) {
+                Bukkit.getPlayer(playerUUID).setDisplayName(response.forumName);
+                Bukkit.getPlayer(playerUUID).setCustomName(response.forumName);
+                Bukkit.getPlayer(playerUUID).setCustomNameVisible(true);
+            }
 
             /*
             Here I go through the player's groups, and if that group is defined in pretty much any
@@ -156,9 +207,11 @@ public class onLogin implements Listener {
             if(pluginInstance.retrieveConfig().isUseDsGroup() && login) {
                 if(response.dsInfo.isDedicatedSupporter) {
                     permission.playerAddGroup(player,config.getDsGroup());
+                    Common.broadcast("&8&l(&a+&8&l) &7" + player.getDisplayName() + " &8- &7" + response.dsInfo.joinMessage);
                 }
                 else {
                     permission.playerRemoveGroup(player, config.getDsGroup());
+                    Common.broadcast("&8&l(&a+&8&l) &7 " + player.getDisplayName());
                 }
             }
 

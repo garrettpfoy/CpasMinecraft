@@ -30,6 +30,11 @@
  */
 package net.cpas.mc.main;
 
+import net.cpas.mc.commands.BanCommand;
+import net.cpas.mc.commands.BanHistoryCommand;
+import net.cpas.mc.commands.InfoCommand;
+import net.cpas.mc.listeners.onDisconnect;
+import net.cpas.mc.listeners.onLogin;
 import net.cpas.mc.storage.Config;
 import net.cpas.model.InfoModel;
 import net.luckperms.api.LuckPerms;
@@ -81,11 +86,16 @@ public class MinecraftCpas extends SimplePlugin {
 
         getLogger().info("Attempting to load listeners...");
         //Load listeners here:
+        registerEvents(new onDisconnect());
+        registerEvents(new onLogin());
 
         getLogger().info("Done!");
 
         getLogger().info("Attempting to load commands...");
         //Load commands here:
+        registerCommand(new BanCommand());
+        registerCommand(new InfoCommand());
+        registerCommand(new BanHistoryCommand());
 
         getLogger().info("Done!");
 

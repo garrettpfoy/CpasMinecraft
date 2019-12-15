@@ -1,5 +1,6 @@
 package net.cpas.mc.storage;
 
+import net.cpas.Cpas;
 import net.cpas.model.CpasGroupModel;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.settings.YamlConfig;
@@ -59,6 +60,10 @@ public class Config extends YamlConfig {
         overrideBanCommand = getBoolean("commands.overrideBanCommand");
         banHistoryCount = getInteger("commands.banHistoryCount");
         banRankThreshold = getInteger("commands.banRankThreshold");
+    }
+
+    public void configCpas() {
+        Cpas.getInstance().configure(getApiUrl(), getApiKey(), getServerIP(), getPort());
     }
 
     public CpasGroupModel getAtLeastAdminGroup() {

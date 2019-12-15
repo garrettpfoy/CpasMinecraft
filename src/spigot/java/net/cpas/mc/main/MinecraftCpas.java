@@ -84,11 +84,15 @@ public class MinecraftCpas extends SimplePlugin {
         config = new Config();
         getLogger().info("Done!");
 
+        getLogger().info("Configuring CPAS...");
+        //loads CPAS/configs CPAS
+        config.configCpas();
+        getLogger().info("Done!");
+
         getLogger().info("Attempting to load listeners...");
         //Load listeners here:
         registerEvents(new onDisconnect());
         registerEvents(new onLogin());
-
         getLogger().info("Done!");
 
         getLogger().info("Attempting to load commands...");
@@ -96,7 +100,6 @@ public class MinecraftCpas extends SimplePlugin {
         registerCommand(new BanCommand());
         registerCommand(new InfoCommand());
         registerCommand(new BanHistoryCommand());
-
         getLogger().info("Done!");
 
         getLogger().info("Plugin has been enabled!");
